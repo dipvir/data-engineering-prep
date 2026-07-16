@@ -11,10 +11,13 @@
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### What is Schema-on-read / Schema-on-write?
+# MAGIC ### What is Schema-On-Read / Schema-On-Write?
 # MAGIC
 # MAGIC ---
-# MAGIC These terms represent two fundamentally different approaches to how data systems handle structure, validation, and storage. The easiest way to think about the difference is **when** the rules (the schema) are enforced: before the data lands on disk, or when you write a query to read it.
+# MAGIC These terms represent two fundamentally different approaches to how data systems handle structure, validation, and storage. 
+# MAGIC - The easiest way to think about the difference is **when** the rules (the schema) are enforced: 
+# MAGIC     - before the data lands on disk.
+# MAGIC     - when you write a query to read it.
 # MAGIC
 # MAGIC ---
 # MAGIC ### 🗺️ The Concepts Visualized
@@ -78,28 +81,28 @@
 # MAGIC
 # MAGIC #### 📋 The 5 Pillars of Schema Validation
 # MAGIC
-# MAGIC ##### **1. Column Order Validation (The Position Trap)**
+# MAGIC ##### 1. Column Order Validation (The Position Trap)
 # MAGIC
 # MAGIC * **The Meaning:** In traditional SQL, standard `INSERT INTO` statements map data fields from left to right based strictly on **ordinal position**, completely ignoring column names.
 # MAGIC * **The Rule:** If you shuffle the order of columns in a query but the data types still match (e.g., swapping `customer_id` and `quantity` because both are integers), Delta will allow the write, but it will cause **silent data corruption**.
 # MAGIC * **The Guardrail:** To prevent this layout trap, always declare explicit target columns in your insert statements, or rely on `MERGE INTO` which matches columns securely **by name** rather than position.
 # MAGIC
-# MAGIC ##### **2. Data Type Validation (The Type Guardian)**
+# MAGIC ##### 2. Data Type Validation (The Type Guardian)
 # MAGIC
 # MAGIC * **The Meaning:** Ensures that the data type of every incoming record field strictly matches the data type defined in the table schema.
 # MAGIC * **The Rule:** Delta will proactively attempt safe implicit casting (e.g., converting a valid numeric string like `'99499'` into an `INT`, or a date string into a `DATE`). However, if an upstream system passes raw garbage text (like `'ABC'`) into an integer column, Delta kills the write immediately with a casting exception to protect structural integrity.
 # MAGIC
-# MAGIC ##### **3. Column Name Validation (The Name Check)**
+# MAGIC ##### 3. Column Name Validation (The Name Check)
 # MAGIC
 # MAGIC * **The Meaning:** Validates that the structural labels of the incoming dataset align cleanly with the target destination attributes.
 # MAGIC * **The Rule:** Similar to column order, a standard positional `INSERT` statement is blind to names and will let a column named `C_ID` write directly into a column defined as `customer_id` as long as it sits in the right index position. Conversely, a `MERGE` or a data frame write requires an absolute, explicit name alignment and will fail immediately if a name mismatch is detected.
 # MAGIC
-# MAGIC ##### **4. Nullability Validation (The Constraint Gate)**
+# MAGIC ##### 4. Nullability Validation (The Constraint Gate)
 # MAGIC
 # MAGIC * **The Meaning:** Enforces strict compliance with `NOT NULL` data design constraints set during table creation.
 # MAGIC * **The Rule:** If a critical business operational field (like `customer_id`) is defined as `NOT NULL`, Delta scans incoming records before writing. The moment a transaction attempts to pass a `NULL` value into that protected slot, Delta aborts the write operation, throwing a constraint violation error.
 # MAGIC
-# MAGIC ##### **5. Extra Columns Validation (The Payload Shield)**
+# MAGIC ##### 5. Extra Columns Validation (The Payload Shield)
 # MAGIC
 # MAGIC * **The Meaning:** Prevents rogue or unmapped attributes from entering a cleanly defined production table layout.
 # MAGIC * **The Rule:** If an upstream system introduces a brand-new, unexpected column (e.g., adding `customer_type` to a schema that doesn't expect it), Delta blocks the write instantly with a `SchemaMismatchedException`. This acts as a protective shield, forcing the data engineer to consciously choose to evolve the schema using **Schema Evolution** parameters (`mergeSchema = true`) before the data is allowed to land.
@@ -116,7 +119,7 @@
 # DBTITLE 1,DDL Command :- Creating A Sample Delta Table For Schema Validation Exercise
 # MAGIC %sql
 # MAGIC -- In prevous notebook(i.e NB1, NB2), we created delta table using parquet files directly with --(CTAS).
-# MAGIC -- Here we are creating a schema for the delta table and inserting data into it
+# MAGIC -- Here we are first manully creating/defining schema for the delta table and then inserting data into it.
 # MAGIC
 # MAGIC CREATE OR REPLACE TABLE delta_catalog.delta_db.invoices_sv (
 # MAGIC   customer_id INT NOT NULL,
@@ -135,7 +138,7 @@
 # MAGIC     price,
 # MAGIC     invoice_date
 # MAGIC   FROM
-# MAGIC     PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet`;
+# MAGIC     PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet`;
 
 # COMMAND ----------
 
@@ -180,10 +183,11 @@
 # DBTITLE 1,DML Command :- Using INSERT INTO To Append A Single Row With Different Column Order
 # MAGIC %sql
 # MAGIC -- This cell attempts to insert a row into the delta_catalog.delta_db.invoices_sv table.
-# MAGIC -- However, the SELECT statement's column order does not match the delta table's schema.
-# MAGIC -- The table expects: customer_id, invoice_no, quantity, price, invoice_date.(In same order)
-# MAGIC -- The SELECT statement provides the data in a different order: quantity, invoice_no, customer_id, price, invoice_date.
+# MAGIC -- However, the SELECT statement's column order does not match the target delta table column order.
+# MAGIC -- The target table expects in this order: customer_id, invoice_no, quantity, price, invoice_date.
+# MAGIC -- The select statement provides in this order: quantity, invoice_no, customer_id, price, invoice_date.
 # MAGIC -- This may cause a schema mismatch or incorrect data insertion.
+# MAGIC -- As in our example both columns are of same type, so no error is thrown but data is inserted incorrectly.
 # MAGIC
 # MAGIC -- Main query of cell startes here
 # MAGIC INSERT INTO delta_catalog.delta_db.invoices_sv
@@ -198,8 +202,8 @@
 # MAGIC     AS T(customer_id, invoice_no, quantity, price, invoice_date);
 # MAGIC -- Main query of cell ends here
 # MAGIC
-# MAGIC -- Run only below code to see order of columns.
-# MAGIC -- result of below query is not how the actual data is inserted.
+# MAGIC -- Run only below code to see the select order of columns and types.
+# MAGIC -- result of below query will show correct value for columns but its not how the actual data is inserted.
 # MAGIC SELECT
 # MAGIC     quantity,
 # MAGIC     invoice_no,
@@ -212,14 +216,14 @@
 
 # COMMAND ----------
 
-# DBTITLE 1,Verifying Data corruption - 1
+# DBTITLE 1,Verifying Data - 1
 # MAGIC %sql
 # MAGIC -- let's see if the data was inserted correctly with customer_id = 9999
 # MAGIC -- Ans : No (result is empty for this query)
-# MAGIC -- This is because the column order in the SELECT statement does not match the table's schema.
-# MAGIC -- The table expects: customer_id, invoice_no, quantity, price, invoice_date.
-# MAGIC -- The SELECT statement provides the data in a different order: quantity, invoice_no, customer_id, price, invoice_date.
-# MAGIC -- This has caused incorrect data insertion.
+# MAGIC -- This is because the column order in the select statement does not match target table schema/column order.
+# MAGIC -- The target table expects in this order: customer_id, invoice_no, quantity, price, invoice_date.
+# MAGIC -- The select statement provides in this order: quantity, invoice_no, customer_id, price, invoice_date.
+# MAGIC -- This has caused data corrupted.
 # MAGIC
 # MAGIC SELECT
 # MAGIC   *
@@ -229,7 +233,7 @@
 
 # COMMAND ----------
 
-# DBTITLE 1,Verifying Data corruption - 2
+# DBTITLE 1,Verifying Data- 2
 # MAGIC %sql
 # MAGIC -- Now, let's see if the data was inserted with customer_id = 10.
 # MAGIC -- Ans : Yes (result contains two records with customer_id = 10).
@@ -248,12 +252,13 @@
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC **In Apache Spark and Delta Lake, a standard INSERT INTO statement completely ignores column names in your SELECT clause. Instead, it maps data strictly by ordinal position (left-to-right).
-# MAGIC Conclusion : Only use INSERT INTO when we are sure about the schema and column order of the table we want to write to, Else we would end up with corrupted data as shown above.**
+# MAGIC **Note :- **
+# MAGIC - In Apache Spark and Delta Lake, a standard INSERT INTO statement completely ignores column names in your SELECT clause. Instead, it maps data strictly by ordinal position (left-to-right).
+# MAGIC - **Conclusion** : Only use INSERT INTO when we are sure about the schema and column order of the table we want to write to, Else we would end up with corrupted data as shown above.
 
 # COMMAND ----------
 
-# DBTITLE 1,Data Consumed In MERGE INTO
+# DBTITLE 1,Query For Data Consumed In MERGE INTO
 # MAGIC %sql
 # MAGIC SELECT
 # MAGIC   customer_id,
@@ -262,7 +267,7 @@
 # MAGIC   price,
 # MAGIC   invoice_date
 # MAGIC FROM
-# MAGIC   PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_101_200.parquet`
+# MAGIC   PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_101_200.parquet`
 # MAGIC ORDER BY
 # MAGIC   customer_id
 # MAGIC LIMIT 5;
@@ -277,7 +282,7 @@
 # DBTITLE 1,DML Command :- Using MERGE INTO To Append Data With Different Column Order
 # MAGIC %sql
 # MAGIC -- Now, here also we have put different column order in the select statement.
-# MAGIC -- Only the first 5 rows(101-105) are being appended to the table.
+# MAGIC -- Only the first 5 rows(101-105) from the source parquet file are being appended to the target table.
 # MAGIC MERGE INTO
 # MAGIC   delta_catalog.delta_db.invoices_sv AS target
 # MAGIC USING (
@@ -288,7 +293,7 @@
 # MAGIC     CAST(price AS FLOAT),
 # MAGIC     invoice_date
 # MAGIC   FROM
-# MAGIC     PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_101_200.parquet`
+# MAGIC     PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_101_200.parquet`
 # MAGIC   ORDER BY
 # MAGIC     customer_id
 # MAGIC   LIMIT 5
@@ -313,7 +318,7 @@
 # MAGIC   delta_catalog.delta_db.invoices_sv
 # MAGIC WHERE customer_id > 100;
 # MAGIC
-# MAGIC -- The output shows customer_id, quantity from 101 to 105 inserted correctly in the table.
+# MAGIC -- The output shows customer_id from 101 to 105 inserted correctly in the table.
 # MAGIC -- Thats means MERGE statement inserted the data correctly.
 
 # COMMAND ----------
@@ -355,7 +360,7 @@
 # MAGIC   VALUES ('12345', 'I12345', 10, 100, '2022-01-01');
 # MAGIC
 # MAGIC -- This Works because delta tries to convert the provided value to cooresponding data type of the column(here int), -- So, here string '12345' can be casted to int and '2022-01-01' can be casted to date.
-# MAGIC -- But if you try to insert a value that can't be converted to cooresponding data type of the column, it will throw an error, as shown on above cell as well.
+# MAGIC -- But if you try to insert a value that can't be converted to cooresponding data type of the column, it will throw an error, as shown in above cell.
 
 # COMMAND ----------
 
@@ -378,7 +383,7 @@
 # DBTITLE 1,Using INSERT INTO To Append Data And Verify Column Name Validation
 # MAGIC %sql
 # MAGIC -- This works.
-# MAGIC -- invoices_s table schema has different columns name then select statement schema.
+# MAGIC -- invoices_sv table schema has different columns name then select statement schema.
 # MAGIC -- invoices_sv table schema = customer_id, invoice_no, quantity, price, invoice_date.
 # MAGIC -- Again as discusssed above as well, INSERT INTO append data based on position of columns and does not check column name, resulting in data insertion irrespective of what column name is in select.
 # MAGIC -- As long as data type of columns matches (Also if possible, tries to cast to appropriate data type), data will be inserted.
@@ -407,7 +412,7 @@
 
 # COMMAND ----------
 
-# DBTITLE 1,Data Consumed In MERGE INTO
+# DBTITLE 1,Query For Data Consumed In MERGE INTO
 # MAGIC %sql
 # MAGIC SELECT
 # MAGIC     customer_id AS c_id,
@@ -416,7 +421,7 @@
 # MAGIC     CAST(price AS FLOAT),
 # MAGIC     invoice_date
 # MAGIC   FROM
-# MAGIC     PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_101_200.parquet`
+# MAGIC     PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_101_200.parquet`
 # MAGIC   ORDER BY
 # MAGIC     customer_id desc
 # MAGIC   LIMIT 5
@@ -440,7 +445,7 @@
 # MAGIC     CAST(price AS FLOAT),
 # MAGIC     invoice_date
 # MAGIC   FROM
-# MAGIC     PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_101_200.parquet`
+# MAGIC     PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_101_200.parquet`
 # MAGIC   ORDER BY
 # MAGIC     customer_id desc
 # MAGIC   LIMIT 5
@@ -459,8 +464,7 @@
 
 # DBTITLE 1,Verifying The Data Insertion
 # MAGIC %sql
-# MAGIC -- The query result won't contain the records from 196 to 200 in the table.
-# MAGIC -- Explained in cell above.
+# MAGIC -- As expected, query results 0 records, as above merge into operation failed due to column name mismatch.
 # MAGIC
 # MAGIC SELECT
 # MAGIC   *
@@ -523,14 +527,14 @@
 # MAGIC     quantity,
 # MAGIC     price,
 # MAGIC     invoice_date,
-# MAGIC     "VIP" AS customer_type -- This column is not present in invoices_sv table schema.
+# MAGIC     "VIP" AS customer_type -- This column is not present in invoices_sv target table schema.
 # MAGIC   FROM
 # MAGIC     VALUES(9999, 'I12345', 10, 100, '2022-01-01') 
 # MAGIC     AS T(customer_id, invoice_no, quantity, price, invoice_date);
 
 # COMMAND ----------
 
-# DBTITLE 1,Data Consumed In MERGE INTO
+# DBTITLE 1,Query For Data Consumed In MERGE INTO
 # MAGIC %sql
 # MAGIC SELECT
 # MAGIC   customer_id,
@@ -540,7 +544,7 @@
 # MAGIC   invoice_date,
 # MAGIC   "VIP" AS customer_type -- This column is not present in invoices_sv table schema.
 # MAGIC FROM
-# MAGIC   PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_101_200.parquet`
+# MAGIC   PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_101_200.parquet`
 # MAGIC WHERE 
 # MAGIC   customer_id BETWEEN 150 AND 155
 
@@ -548,7 +552,7 @@
 
 # DBTITLE 1,DML Command :- Using MERGE INTO To Append Data And Verify Extra Columns Validation
 # MAGIC %sql
-# MAGIC -- Now, this cell doesn't throw error, but only inserts the data for columns present in invoices_sv table schema and doesn't insert the additional column customer_type.
+# MAGIC -- Now, this cell doesn't throw error, but only inserts the data for columns present in invoices_sv table schema and ignores additional column customer_type.
 # MAGIC
 # MAGIC MERGE INTO
 # MAGIC   delta_catalog.delta_db.invoices_sv AS target
@@ -561,7 +565,7 @@
 # MAGIC     invoice_date,
 # MAGIC     "VIP" AS customer_type -- This column is not present in invoices_sv table schema.
 # MAGIC   FROM
-# MAGIC     PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_101_200.parquet`
+# MAGIC     PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_101_200.parquet`
 # MAGIC   WHERE
 # MAGIC     customer_id BETWEEN 150 AND 155
 # MAGIC ) AS source

@@ -29,7 +29,7 @@
 # MAGIC Since you are mapping your own external containers for the course, you can use it to verify if your Parquet or Delta files actually landed on Azure:
 # MAGIC
 # MAGIC ```bash
-# MAGIC %fs ls abfss://lab-data@daltalakelabstorageacc.dfs.core.windows.net/invoices/
+# MAGIC %fs ls abfss://lab-data@delta0lake0lab0storageac.dfs.core.windows.net/invoices/
 # MAGIC
 # MAGIC ```
 # MAGIC
@@ -67,7 +67,7 @@
 # COMMAND ----------
 
 # DBTITLE 1,List The Contents Of ADLS Container/Directory
-# MAGIC %fs ls abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/
+# MAGIC %fs ls abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/
 
 # COMMAND ----------
 
@@ -75,7 +75,7 @@
 files = dbutils.fs.ls("/")
 display(files)
 # Sample Parquet files used in this lab are stored in this location.
-files = dbutils.fs.ls("abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/")
+files = dbutils.fs.ls("abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/")
 display(files)
 
 # COMMAND ----------
@@ -85,12 +85,12 @@ display(files)
 # MAGIC -- 1. registering an External Location and Catalog in Unity Catalog.
 # MAGIC -- (Note: Use the exact name of the Storage Credential you created earlier)
 # MAGIC CREATE EXTERNAL LOCATION IF NOT EXISTS delta_lake_lab_adlsg2_ext_location_delta URL
-# MAGIC 'abfss://ext-location-delta@daltalakelabstorageacc.dfs.core.windows.net/'
-# MAGIC WITH (STORAGE CREDENTIAL `dalta_lake_lab_container_external_adls2_location_azuremanagedidentity_1781275180589`);
+# MAGIC 'abfss://dbr-managed-tables-container@delta0lake0lab0storageac.dfs.core.windows.net/'
+# MAGIC WITH (STORAGE CREDENTIAL `delta0lake0lab0storageac_adls_sa_el_azuremanagedidentity_1783847538585`);
 # MAGIC
 # MAGIC -- 2. Create the catalog pointing to your custom external location
 # MAGIC CREATE CATALOG IF NOT EXISTS delta_catalog
-# MAGIC MANAGED LOCATION 'abfss://ext-location-delta@daltalakelabstorageacc.dfs.core.windows.net/';
+# MAGIC MANAGED LOCATION 'abfss://dbr-managed-tables-container@delta0lake0lab0storageac.dfs.core.windows.net/';
 # MAGIC
 # MAGIC -- 3. Create your schema
 # MAGIC CREATE SCHEMA IF NOT EXISTS delta_catalog.delta_db;
@@ -103,7 +103,7 @@ display(files)
 # MAGIC SELECT
 # MAGIC   *
 # MAGIC FROM
-# MAGIC   PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_101_200.parquet`
+# MAGIC   PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_101_200.parquet`
 # MAGIC LIMIT 5;
 
 # COMMAND ----------
@@ -114,7 +114,7 @@ display(files)
 # MAGIC SELECT
 # MAGIC   *
 # MAGIC FROM
-# MAGIC   PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_101_200.parquet`;
+# MAGIC   PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_101_200.parquet`;
 
 # COMMAND ----------
 
@@ -154,7 +154,7 @@ display(files)
 # MAGIC   SELECT
 # MAGIC     *
 # MAGIC   FROM
-# MAGIC     PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet`;
+# MAGIC     PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet`;
 
 # COMMAND ----------
 
@@ -181,6 +181,7 @@ display(files)
 
 # COMMAND ----------
 
+# DBTITLE 1,Querying Delta Table
 # MAGIC %sql
 # MAGIC SELECT
 # MAGIC   *
@@ -208,6 +209,7 @@ display(files)
 
 # COMMAND ----------
 
+# DBTITLE 1,Querying Delta Table
 # MAGIC %sql
 # MAGIC SELECT
 # MAGIC   *
@@ -239,10 +241,11 @@ display(files)
 # MAGIC   SELECT
 # MAGIC     *
 # MAGIC   FROM
-# MAGIC     PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_201_99457.parquet`
+# MAGIC     PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_201_99457.parquet`
 
 # COMMAND ----------
 
+# DBTITLE 1,Checking Delta Table History
 # MAGIC %sql
 # MAGIC DESCRIBE HISTORY delta_catalog.delta_db.invoices;
 
