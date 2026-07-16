@@ -22,7 +22,7 @@ from delta.tables import DeltaTable
 # MAGIC
 # MAGIC 4. Column Position Changes (Manual / Automatic): we can reorganize our columns
 # MAGIC
-# MAGIC **Note:** 
+# MAGIC ### Quick Note To Remember:
 # MAGIC - `INSERT` works by matching columns by position
 # MAGIC - `MERGE` works by matching columns by name
 
@@ -39,24 +39,24 @@ from delta.tables import DeltaTable
 # MAGIC
 # MAGIC #### 📋 The 4 Drivers of Schema Evolution
 # MAGIC
-# MAGIC ##### **1. Adding New Columns (Expanding the Blueprint)**
+# MAGIC ##### 1. Adding New Columns (Expanding the Blueprint)
 # MAGIC
 # MAGIC * **The Meaning:** The most common form of evolution. It happens when an upstream application introduces a brand-new field that your table needs to store moving forward.
 # MAGIC * **The Manual Way:** You explicitly execute a DDL command (`ALTER TABLE ... ADD COLUMN`) to update the table’s metadata blueprint manually before running your data stream.
 # MAGIC * **The Automatic Way:** You pass the explicit operational parameter **`.option("mergeSchema", "true")`** inside a PySpark write stream, or set the SQL environment configuration property `spark.databricks.delta.schema.autoMerge.enabled = true`. Delta will automatically detect the new column, append it to the log metadata, fill historical rows with `NULL`, and write the data cleanly.
 # MAGIC
-# MAGIC ##### **2. Type Widening (Scaling Data Capacity)**
+# MAGIC ##### 2. Type Widening (Scaling Data Capacity)
 # MAGIC
 # MAGIC * **The Meaning:** Introduced in newer Delta Lake versions, this allows you to safely upgrade a column's data type to a larger, compatible container if your numbers grow too big.
 # MAGIC * **The Rule:** You cannot randomly change a data type from an `INT` to a `STRING` because that would corrupt the underlying Parquet files. However, you can widen a column from **`INT` to `BIGINT**` (or `FLOAT` to `DOUBLE`) when your transactions span beyond ordinary integer limits.
 # MAGIC * **The Mechanics:** Once enabled via table properties (`delta.enableTypeWidening = true`), you alter the column type. Delta gracefully maps the wider data type in the log metadata layer, allowing old files to coexist safely with newly appended wide files.
 # MAGIC
-# MAGIC ##### **3. Nested Structure Evolution (Managing Complex Schemas)**
+# MAGIC ##### 3. Nested Structure Evolution (Managing Complex Schemas)
 # MAGIC
 # MAGIC * **The Meaning:** Handles changes occurring inside complex, multi-layered data columns like `STRUCT` types (e.g., a `purchase_details` column that groups nested fields like `mall_pin_code` and `store_code`).
 # MAGIC * **The Rule:** Just like flat schemas, nested structs can evolve. You can manually alter or use automatic schema merging to inject a brand-new sub-attribute (like `staff_id`) right into the middle of an existing struct container. Delta maintains absolute consistency by automatically assigning `NULL` to the new inner sub-attribute across all older historical records.
 # MAGIC
-# MAGIC ##### **4. Column Position Changes (Reordering Layouts)**
+# MAGIC ##### 4. Column Position Changes (Reordering Layouts)
 # MAGIC
 # MAGIC * **The Meaning:** Dictates where a newly introduced column physically or logically falls inside your table sequence (e.g., forcing a new `age` column to sit explicitly *after* `price` rather than automatically getting dumped at the very end).
 # MAGIC * **The Rule:** Standard positional `INSERT` statements will crash or mismatch if you change the expected order. However, if you utilize a robust **`MERGE INTO`** statement or write using data frames with schema merging active, Delta completely bypasses the positioning trap. It resolves the layout **by name**, appends the new column exactly where specified in the metadata index, and properly shifts the logical visibility schema layout for end-users.
@@ -74,7 +74,7 @@ from delta.tables import DeltaTable
 
 # COMMAND ----------
 
-# DBTITLE 1,Data Sample Used For Creation Of invoices_se Delta Table
+# DBTITLE 1,Query For Data Consumed Used In Creation Of invoices_se Delta Table
 # MAGIC %sql
 # MAGIC SELECT
 # MAGIC   customer_id,
@@ -82,7 +82,7 @@ from delta.tables import DeltaTable
 # MAGIC   price,
 # MAGIC   invoice_date
 # MAGIC FROM
-# MAGIC   PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet`
+# MAGIC   PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet`
 # MAGIC WHERE
 # MAGIC   customer_id BETWEEN 1 AND 5;
 
@@ -108,7 +108,7 @@ from delta.tables import DeltaTable
 # MAGIC     price,
 # MAGIC     invoice_date
 # MAGIC   FROM
-# MAGIC     PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet`
+# MAGIC     PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet`
 # MAGIC   WHERE
 # MAGIC     customer_id BETWEEN 1 AND 5;
 
@@ -136,12 +136,12 @@ from delta.tables import DeltaTable
 
 # COMMAND ----------
 
-# DBTITLE 1,Rough Cell To Check Source file Columns
+# DBTITLE 1,Rough Cell To Check Source File Columns And Data
 # MAGIC %sql
 # MAGIC SELECT
 # MAGIC   *
 # MAGIC FROM
-# MAGIC   PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet`
+# MAGIC   PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet`
 # MAGIC ORDER BY price DESC;
 
 # COMMAND ----------
@@ -152,7 +152,7 @@ from delta.tables import DeltaTable
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC #### Manual Schema Evolution
+# MAGIC #### Manual Way Of Adding New Columns
 
 # COMMAND ----------
 
@@ -162,7 +162,7 @@ from delta.tables import DeltaTable
 
 # COMMAND ----------
 
-# DBTITLE 1,Manually Adding New Column Quantity
+# DBTITLE 1,DDL Command :- Manually Adding New Column Quantity
 # MAGIC %sql
 # MAGIC ALTER TABLE delta_catalog.delta_db.invoices_se
 # MAGIC ADD COLUMN quantity INT;
@@ -185,7 +185,7 @@ from delta.tables import DeltaTable
 # MAGIC     invoice_date,
 # MAGIC     quantity
 # MAGIC   FROM
-# MAGIC     PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet`
+# MAGIC     PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet`
 # MAGIC   WHERE
 # MAGIC     customer_id BETWEEN 6 AND 10;
 
@@ -210,7 +210,7 @@ from delta.tables import DeltaTable
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC #### Automatic Schema Evolution Using INSERT INTO
+# MAGIC #### Automatic Way Of Adding New Columns Using INSERT INTO
 
 # COMMAND ----------
 
@@ -280,7 +280,7 @@ from delta.tables import DeltaTable
 
 # DBTITLE 1,Automatic Schema Evolution Using Pyspark
 # 1. Define your cloud storage path variables
-source_parquet_path = "abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet"
+source_parquet_path = "abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet"
 target_table_name = "delta_catalog.delta_db.invoices_se"
 
 # 2. Read the raw parquet file into a Spark DataFrame
@@ -360,7 +360,7 @@ df_source = (spark.read
 # MAGIC     payment_method,
 # MAGIC     age -- New column for automatic schema evolution.
 # MAGIC   FROM
-# MAGIC     PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet`
+# MAGIC     PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet`
 # MAGIC   WHERE
 # MAGIC     customer_id BETWEEN 11 AND 15;
 
@@ -385,7 +385,7 @@ df_source = (spark.read
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC #### Automatic Schema Evolution Using MERGE INTO
+# MAGIC #### Automatic Way Of Adding New Columns Using MERGE INTO
 
 # COMMAND ----------
 
@@ -407,10 +407,10 @@ df_source = (spark.read
 # MAGIC     current_date() AS invoice_date, 
 # MAGIC     quantity,
 # MAGIC     payment_method,
-# MAGIC     age,                -- if above sql code for automatic schema evolution using 'Insert Into' is not executed, then this wil also be a new column.
+# MAGIC     age,                -- if above sql code for automatic schema evolution using 'Insert Into' is not executed, then this will also be a new column.
 # MAGIC     shopping_mall       -- New column for automatic schema evolution.
 # MAGIC   FROM
-# MAGIC     PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet`
+# MAGIC     PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet`
 # MAGIC   WHERE
 # MAGIC     customer_id BETWEEN 19 AND 25
 # MAGIC ) AS source
@@ -442,6 +442,11 @@ df_source = (spark.read
 
 # MAGIC %md
 # MAGIC ### Scenario 2: Data Types Widening
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### Manual Way Of Data Types Widening
 
 # COMMAND ----------
 
@@ -496,6 +501,11 @@ df_source = (spark.read
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC #### Automatic Way Of Data Types Widening
+
+# COMMAND ----------
+
 # DBTITLE 1,Automatic Type Widening Using SQL And MERGE INTO
 # MAGIC %sql
 # MAGIC -- Enable type widening feature on the table ('delta.enableTypeWidening' = 'true').
@@ -513,7 +523,7 @@ df_source = (spark.read
 # MAGIC     age,
 # MAGIC     shopping_mall
 # MAGIC   FROM
-# MAGIC     PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet`
+# MAGIC     PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet`
 # MAGIC   WHERE
 # MAGIC     customer_id BETWEEN 30 AND 35
 # MAGIC ) AS source
@@ -530,11 +540,11 @@ df_source = (spark.read
 df_incoming = (
     spark.read.format("parquet")
     .load(
-        "abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet"
+        "abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet"
     )
     .filter(col("customer_id").between(40, 43))
     .selectExpr(
-        "CAST(customer_id AS LONG) AS customer_id",  # Fixed for target bigint mapping
+        "CAST(customer_id AS LONG) AS customer_id",  #added as we manually type widening customer_id from int to bigint in target table
         "invoice_no",
         "price",
         "date_sub(current_date(), 15) AS invoice_date",
@@ -562,6 +572,8 @@ df_incoming = (
 # MAGIC   *
 # MAGIC FROM
 # MAGIC   delta_catalog.delta_db.invoices_se; 
+# MAGIC
+# MAGIC -- check the price column datatype to verify as automatic type widening changed the type from float to double 
 
 # COMMAND ----------
 
@@ -603,7 +615,7 @@ df_incoming = (
 
 # DBTITLE 1,Appending A Single Record
 # MAGIC %sql
-# MAGIC -- delta table columns
+# MAGIC -- target table columns
 # MAGIC
 # MAGIC -- customer_id
 # MAGIC -- invoice_no
@@ -635,7 +647,7 @@ df_incoming = (
 
 # DBTITLE 1,Verifying The Data Type
 # MAGIC %sql
-# MAGIC DESCRIBE Table delta_catalog.delta_db.invoices_se;
+# MAGIC DESCRIBE TABLE delta_catalog.delta_db.invoices_se;
 
 # COMMAND ----------
 
@@ -727,7 +739,7 @@ df_incoming = (
 # MAGIC -- Appending A Single Record To Verify Schema Evolution Nested Structure
 # MAGIC -- Enable automatic schema evolution Setting on the table ('spark.databricks.delta.schema.autoMerge.enabled' = 'true'). 
 # MAGIC INSERT INTO delta_catalog.delta_db.invoices_se
-# MAGIC VALUES(53, 'I0003', 100, '2026-04-19', 33, 'Credit Card', "24", "Mall of Istanbul", 
+# MAGIC VALUES(88, 'I0003', 100, '2026-04-19', 33, 'Credit Card', "24", "Mall of Istanbul", 
 # MAGIC named_struct( 'mall_pin_code',012345,
 # MAGIC  'store_code', 12345,
 # MAGIC  'store_loc', "Istanbul",
@@ -738,7 +750,7 @@ df_incoming = (
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### Using MERGE INTO %md (Works On Serverless and User-Managed Cluster Both)
+# MAGIC ##### Using MERGE INTO (Works On Serverless and User-Managed Cluster Both)
 
 # COMMAND ----------
 
@@ -837,7 +849,7 @@ df_incoming = (
 # MAGIC     shopping_mall,
 # MAGIC     Null AS purchase_details
 # MAGIC   FROM
-# MAGIC     PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet`
+# MAGIC     PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet`
 # MAGIC   WHERE
 # MAGIC     customer_id BETWEEN 60 AND 65;
 
