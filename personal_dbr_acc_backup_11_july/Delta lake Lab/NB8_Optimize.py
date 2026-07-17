@@ -6,7 +6,7 @@ from delta.tables import DeltaTable
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### *Small File Problem* :- An Analogy of *Reading A 300-Page Novel In PDF Format*
+# MAGIC ### Small File Problem :- An Analogy of Reading A 300-Page Novel In PDF Format
 # MAGIC
 # MAGIC * **The Analogy**: Imagine if that novel wasn't stored in one single file, but instead split into 300 individual files—one for every single page. To read the entire book, you would have to spend significant time performing repetitive actions: **finding** the file, **opening** the file, **reading** it, and **closing** it for every single page.
 # MAGIC * **The Data Engineering Reality**: This overhead of opening, closing, and performing metadata lookups for thousands of small files (instead of a few neatly packed larger ones) causes **wasted compute resources** and **poor I/O performance**.
@@ -15,7 +15,7 @@ from delta.tables import DeltaTable
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### How *Delta Lake* solves the *Small File Problem* primarily through the *OPTIMIZE* command, which uses a *Bin Packing Algorithm*.
+# MAGIC ### How Delta Lake solves the Small File Problem primarily through the OPTIMIZE command, which uses a Bin Packing Algorithm.
 # MAGIC
 # MAGIC *   **How it works**: The *OPTIMIZE* command reads the numerous tiny files, groups them into larger, ideally-sized blocks (targeting a default of **1GB**), and then writes them out as more efficient, larger files. This replaces the scattered, fragmented data with a streamlined layout that is significantly faster for query engines to process.
 # MAGIC *   **Other mechanisms**: 
@@ -79,7 +79,7 @@ from delta.tables import DeltaTable
 # DBTITLE 1,Loading Sample Parquet File As Dataframe
 # Using this parquet file to create delta table with small files to mimic small files problem in delta lake
 df = spark.read.parquet(
-    "abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_201_99457.parquet"
+    "abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_201_99457.parquet"
 )
 display(df.limit(5))
 
@@ -100,14 +100,18 @@ print(df.select("category").distinct().count())
 
 # COMMAND ----------
 
-# DBTITLE 1,Disabling Auto-Optimization
+# DBTITLE 0,Disabling Auto-Optimization
 # MAGIC %sql
-# MAGIC -- Disable Auto-Optimization directly on the table blueprint
-# MAGIC ALTER TABLE delta_catalog.delta_db.optimize_ex1 
-# MAGIC SET TBLPROPERTIES (
-# MAGIC   'delta.autoOptimize.optimizeWrite' = 'false',
-# MAGIC   'delta.autoOptimize.autoCompact' = 'false'
-# MAGIC );
+# MAGIC -- Skip this cell if user managed cluster is used
+# MAGIC -- Disable Auto-Optimization directly on the table blueprint(first run next write cell)
+# MAGIC ALTER TABLE
+# MAGIC   delta_catalog.delta_db.optimize_ex1
+# MAGIC SET TBLPROPERTIES
+# MAGIC   ('delta.autoOptimize.optimizeWrite' = 'false', 'delta.autoOptimize.autoCompact' = 'false');
+# MAGIC
+# MAGIC -- Get global SparkSession property values for auto optimization
+# MAGIC -- SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite;
+# MAGIC -- SET spark.databricks.delta.properties.defaults.autoOptimize.autoCompact;
 
 # COMMAND ----------
 
@@ -291,7 +295,7 @@ df_fruits_data.select("category").distinct().count()
 # COMMAND ----------
 
 # DBTITLE 1,Writing New Category To Replicate Incremental Data
-# Like prevously we are writing the data with 5 partition for incremental category data
+# Like prevously we are writing the data with 5 partition for incremental/new category data
 df_fruits_data.repartition(5).write.mode("append").partitionBy("category").saveAsTable("delta_catalog.delta_db.optimize_ex1")
 
 # COMMAND ----------
@@ -495,7 +499,7 @@ delta_table.vacuum(0);
 # MAGIC %md
 # MAGIC #### 🗜️ Deep Dive: Auto Compaction in Delta Lake
 # MAGIC
-# MAGIC **Auto Compaction** is a Delta Lake feature that automatically merges small files into larger ones during write operations, improving read performance and reducing storage overhead.
+# MAGIC **Auto Compaction** is a Delta Lake feature that automatically merges small files into larger ones after write operations, improving read performance and reducing storage overhead.
 # MAGIC
 # MAGIC ---
 # MAGIC ##### What Is Auto Compaction?
@@ -548,11 +552,14 @@ delta_table.vacuum(0);
 # COMMAND ----------
 
 # DBTITLE 1,Changing AutoCompact To Smaller Value For This Lab
+# default value of spark.databricks.delta.autoCompact.minNumFiles is 50.(need user-managed cluster)
+print(spark.conf.set("spark.databricks.delta.autoCompact.minNumFiles", 3)) # setting the value to 3
+print(spark.conf.get("spark.databricks.delta.autoCompact.minNumFiles")) # getting the value
+
+# COMMAND ----------
+
+# DBTITLE 1,Changing AutoCompact To Smaller Value For This Lab
 # MAGIC %sql
-# MAGIC -- default value of spark.databricks.delta.autoCompact.minNumFiles is 50.(need user-managed cluster)
-# MAGIC -- print(spark.conf.set("spark.databricks.delta.autoCompact.minNumFiles", 3)) # setting the value to 3
-# MAGIC -- print(spark.conf.get("spark.databricks.delta.autoCompact.minNumFiles")) # getting the value
-# MAGIC
 # MAGIC -- In serverless, manual Spark config overrides are not supported. Use Delta table properties instead.
 # MAGIC -- ALTER TABLE delta_catalog.delta_db.optimize_ex3
 # MAGIC -- SET TBLPROPERTIES ('delta.autoOptimize.optimizeWrite' = 'false');
@@ -585,7 +592,7 @@ df_detergents_data.select("category").distinct().count()
 # DBTITLE 1,Writing New Category/Partition To optimize_ex3 Table
 (
     df_detergents_data.repartition(51)
-    .write.mode("append")
+    .write.mode("append")   
     .partitionBy("category")
     .saveAsTable("delta_catalog.delta_db.optimize_ex3")
 )
@@ -670,11 +677,11 @@ df_detergents_data.select("category").distinct().count()
 
 # DBTITLE 1,Load and Filter Invoice Data by Customer ID Ranges
 df_1k_45k = spark.read.parquet(
-    "abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_201_99457.parquet"
+    "abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_201_99457.parquet"
 ).filter(F.col("customer_id").between(1000, 45000))
 
 df_46k_99k = spark.read.parquet(
-    "abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_201_99457.parquet"
+    "abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_201_99457.parquet"
 ).filter(F.col("customer_id").between(46000, 99000))
 
 print(df_1k_45k.count())

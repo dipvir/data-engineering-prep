@@ -3,7 +3,7 @@
 SELECT
   *
 FROM
-  PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet`
+  PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet`
 LIMIT 5;
 
 -- COMMAND ----------
@@ -19,7 +19,7 @@ CREATE OR REPLACE TABLE delta_catalog.delta_db.invoices_cow
 SELECT
   *
 FROM
-  PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet`;
+  PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet`;
 
 -- COMMAND ----------
 
@@ -104,7 +104,7 @@ CREATE OR REPLACE TABLE delta_catalog.delta_db.invoices_mor
 SELECT
   *
 FROM
-  PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet`;
+  PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet`;
 
 -- COMMAND ----------
 
@@ -212,13 +212,14 @@ DESCRIBE HISTORY delta_catalog.delta_db.invoices_mor;
 
 -- MAGIC %md
 -- MAGIC **This is the state of invoices_mor data files in ADLS (After OPTIMIZE Operation)**
--- MAGIC - So, **OPTIMIZE** added one new parquet file, But it doesnt clear the old file because of time travel.
--- MAGIC - To clear/remove old files we have use **VACUUM** Command explicitly.
+-- MAGIC - So, **OPTIMIZE** added one new consolidated parquet file, But it doesnt clear the old file because of time travel.
+-- MAGIC - To clear/remove old files manually we have to use **VACUUM** Command explicitly.
 -- MAGIC
 -- MAGIC ![image_1781963610365.png](NB6_images/image_1781963610365.png "image_1781963610365.png")
 
 -- COMMAND ----------
 
+-- DBTITLE 1,Set Zero Retention and Vacuum Delta Table invoices_mor
 
 -- SET 'spark.databricks.delta.retentionDurationCheck.enabled' = 'false' (Need User-managed cluster)
 
@@ -249,3 +250,8 @@ VACUUM delta_catalog.delta_db.invoices_mor;
 -- MAGIC *   **Merge on Read (MOR)**: Ideal for scenarios with **frequent updates**. By recording changes in a *deletion vector* file rather than rewriting the full data file, it significantly reduces write latency.
 -- MAGIC
 -- MAGIC In short, use **COW** when you want fast reads and have stable data, and **MOR** when your primary bottleneck is write performance.
+
+-- COMMAND ----------
+
+-- DBTITLE 1,DESCRIBE HISTORY invoices_mor
+DESCRIBE HISTORY delta_catalog.delta_db.invoices_mor;

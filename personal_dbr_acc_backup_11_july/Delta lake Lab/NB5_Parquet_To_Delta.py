@@ -1,23 +1,23 @@
 # Databricks notebook source
 # DBTITLE 1,Listing Sample Parquet Files From ADLS
-# MAGIC %fs ls abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/
+# MAGIC %fs ls abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/
 
 # COMMAND ----------
 
 # DBTITLE 1,Creating A Copy Of Parquet Files For Delta Conversion
 # Reading/loading the parquet file 
-df_invoices_101_200 = spark.read.parquet("abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_101_200.parquet")
+df_invoices_101_200 = spark.read.parquet("abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_101_200.parquet")
 
 # Creating two copies of the parquet file in two different folders.
-df_invoices_101_200.write.mode("overwrite").parquet("abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices_101_200_v1")
-df_invoices_101_200.write.mode("overwrite").parquet("abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices_101_200_v2")
+df_invoices_101_200.write.mode("overwrite").parquet("abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices_101_200_v1")
+df_invoices_101_200.write.mode("overwrite").parquet("abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices_101_200_v2")
 
 # COMMAND ----------
 
 # DBTITLE 1,Converting V1 Copy To Delta Using SQL
 # MAGIC %sql
 # MAGIC CONVERT TO DELTA
-# MAGIC PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices_101_200_v1`
+# MAGIC PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices_101_200_v1`
 
 # COMMAND ----------
 
@@ -26,39 +26,39 @@ from delta.tables import DeltaTable
 
 DeltaTable.convertToDelta(
     spark,
-    "PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices_101_200_v2`"
+    "PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices_101_200_v2`"
 )
 
 # COMMAND ----------
 
 # DBTITLE 1,Reading Delta File From ADLS
 # Reading/loading converted parquet to delta file 
-df_invoices_101_200 = spark.read.format("delta").load("abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices_101_200_v1")
+df_invoices_101_200 = spark.read.format("delta").load("abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices_101_200_v1")
 display(df_invoices_101_200)
 
 # COMMAND ----------
 
 # DBTITLE 1,Checking History Of Delta File In ADLS
-delta_table = DeltaTable.forPath(spark, "abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices_101_200_v1")
+delta_table = DeltaTable.forPath(spark, "abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices_101_200_v1")
 display(delta_table.history())
 
 # COMMAND ----------
 
 # DBTITLE 1,Converting CSV To Delta
 # Reading/loading the source csv file 
-df_Gold_reserves_tonnes = spark.read.option("header", "true").option("inferSchema", "true").csv("abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/Gold_reserves_tonnes.csv")
+df_Gold_reserves_tonnes = spark.read.option("header", "true").option("inferSchema", "true").csv("abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/Gold_reserves_tonnes.csv")
 # Correcting the column name for delta table compatibility
 df_Gold_reserves_tonnes = df_Gold_reserves_tonnes.withColumnRenamed("Average gold reserves", "Average_gold_reserves")
 display(df_Gold_reserves_tonnes)
 
 # Converting csv file to delta file
-df_Gold_reserves_tonnes.write.mode("overwrite").format("delta").save("abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/Gold_reserves_tonnes_delta")
+df_Gold_reserves_tonnes.write.mode("overwrite").format("delta").save("abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/Gold_reserves_tonnes_delta")
 
 # COMMAND ----------
 
 # DBTITLE 1,Reading Delta File From ADLS
 # Reading/loading converted csv to delta file 
-df_Gold_reserves_tonnes = spark.read.format("delta").load("abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/Gold_reserves_tonnes_delta")
+df_Gold_reserves_tonnes = spark.read.format("delta").load("abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/Gold_reserves_tonnes_delta")
 display(df_Gold_reserves_tonnes)
 
 # COMMAND ----------
@@ -67,14 +67,13 @@ display(df_Gold_reserves_tonnes)
 # MAGIC %sql
 # MAGIC -- Till now whatever delta tables we have created in prevous notebooks were managed tables.
 # MAGIC -- Now we will create an external table in delta format.
-# MAGIC
 # MAGIC CREATE OR REPLACE TABLE delta_catalog.delta_db.invoices_ext
 # MAGIC   USING DELTA
-# MAGIC   LOCATION 'abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices_ext' AS
+# MAGIC   LOCATION 'abfss://dbr-external-tables-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices_ext' AS
 # MAGIC SELECT
 # MAGIC   *
 # MAGIC FROM
-# MAGIC   PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_101_200.parquet`
+# MAGIC   PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_101_200.parquet`
 
 # COMMAND ----------
 

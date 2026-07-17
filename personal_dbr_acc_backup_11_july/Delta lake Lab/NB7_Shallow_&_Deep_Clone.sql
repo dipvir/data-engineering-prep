@@ -1,8 +1,8 @@
 -- Databricks notebook source
 -- MAGIC %md
--- MAGIC ### Creating Reference Delta Table (To Be Used For This Lab)
+-- MAGIC ### Creating Reference Delta Table To Be Used In This Shallow & Deep Clone Lab
 -- MAGIC
--- MAGIC - **invoices_tbl_clone_reference** will be used as a reference table for the following exercises
+-- MAGIC - **invoices_tbl_clone_reference** will be used as a reference table for this lab
 -- MAGIC - For that first we are creating invoices_tbl_clone_reference and performing some operations over it to have some versions/history.
 
 -- COMMAND ----------
@@ -14,7 +14,7 @@ CREATE OR REPLACE TABLE delta_catalog.delta_db.invoices_tbl_clone_reference AS
 SELECT
   *
 FROM
-  PARQUET.`abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core.windows.net/invoices/invoices_1_100.parquet`;
+  PARQUET.`abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/invoices_1_100.parquet`;
 
 -- COMMAND ----------
 
@@ -61,6 +61,8 @@ DESCRIBE HISTORY delta_catalog.delta_db.invoices_tbl_clone_reference;
 
 -- MAGIC %md
 -- MAGIC ### Shallow Clone
+-- MAGIC
+-- MAGIC A shallow clone in Delta Lake creates a new table that references the original table's data files without copying them. This allows for fast table creation and minimal storage usage. The clone maintains its own history and operations, so changes to the source table after cloning do not affect the clone, and vice versa. Shallow clones are useful for testing, experimentation, and creating temporary tables without duplicating large datasets.
 
 -- COMMAND ----------
 
@@ -114,7 +116,7 @@ WHERE
 DESCRIBE HISTORY delta_catalog.delta_db.invoices_tbl_shallow_clone;
 
 -- So, Update customer_id = 10 is not there in shallow clone table history.
--- Reason is changes made to reference table does'nt effect shallow clone table eventhough it refereces it.
+-- Because changes made to reference table does'nt effect shallow clone table eventhough it refereces it.
 -- Once shallow clone table is created, it will maintain its own history.
 
 -- COMMAND ----------
@@ -150,7 +152,7 @@ WHERE
 -- COMMAND ----------
 
 -- MAGIC %md
--- MAGIC #### Deleting customer_id = 99 from shallow clone table to verify that the changes occurs in reference table.
+-- MAGIC #### Now, Deleting customer_id = 99 from shallow clone table to verify that the changes occurs in reference table `(Vice Versa)`.
 
 -- COMMAND ----------
 
@@ -199,7 +201,7 @@ DESCRIBE HISTORY delta_catalog.delta_db.invoices_tbl_clone_reference;
 -- MAGIC %md
 -- MAGIC **This is the state of invoices_tbl_shallow_clone data files in ADLS (After Delete Operation)**
 -- MAGIC - There is only a deletion vector added and no parquet because delete operation doesnt generate any.
--- MAGIC - If it be would insert/update operation then there would be parquet file added. 
+-- MAGIC - If it would have been insert/update operation then there would be parquet file added. 
 -- MAGIC
 -- MAGIC ![image_1782051863219.png](NB7_images/image_1782051863219.png "image_1782051863219.png")
 
@@ -341,6 +343,7 @@ SET TBLPROPERTIES ('delta.deletedFileRetentionDuration' = 'interval 0 hours');
 VACUUM delta_catalog.delta_db.invoices_tbl_clone_reference;
 
 -- So, used global setting with user managed cluster
+
 SET spark.databricks.delta.retentionDurationCheck.enabled = false;
 VACUUM delta_catalog.delta_db.invoices_tbl_clone_reference RETAIN 0 HOURS;
 
@@ -357,7 +360,7 @@ DESCRIBE HISTORY delta_catalog.delta_db.invoices_tbl_clone_reference;
 -- MAGIC - Although some deletion vector got cleaned as seen on previous image its 4 now its 2.
 -- MAGIC - The reason parquet file is still there, because we have used this `invoices_tbl_clone_reference` delta table to shallow clone couple of tables. 
 -- MAGIC - This shallow clones still consumes that deleted record so, thats why it needs that parquet file.
--- MAGIC - Workaround is to delete that record for all shallow clone tables created from source `invoices_tbl_clone_reference`.
+-- MAGIC - Workaround is to delete that record from all shallow clone tables created from source `invoices_tbl_clone_reference`.
 -- MAGIC
 -- MAGIC ![image_1782110907470.png](NB7_images/image_1782110907470.png "image_1782110907470.png")
 
@@ -408,6 +411,7 @@ SET TBLPROPERTIES ('delta.deletedFileRetentionDuration' = 'interval 0 hours');
 VACUUM delta_catalog.delta_db.invoices_tbl_clone_reference;
 
 -- So, used global setting with user managed cluster
+
 SET spark.databricks.delta.retentionDurationCheck.enabled = false;
 VACUUM delta_catalog.delta_db.invoices_tbl_clone_reference RETAIN 0 HOURS;
 
@@ -422,6 +426,8 @@ VACUUM delta_catalog.delta_db.invoices_tbl_clone_reference RETAIN 0 HOURS;
 
 -- MAGIC %md
 -- MAGIC ### Deep Clone
+-- MAGIC
+-- MAGIC Deep Clone in Delta Lake creates a full, independent copy of a table, including all data files and metadata. Unlike shallow clone, which references source data files, deep clone copies everything to a new location. After cloning, the deep clone table maintains its own history and operations, and changes to either the source or clone do not affect the other. Deep Clone is useful for backup, disaster recovery, and creating isolated test environments.
 
 -- COMMAND ----------
 
@@ -457,7 +463,7 @@ SHOW TABLES DROPPED IN delta_catalog.delta_db;
 -- MAGIC - Now, after cloning whatever operation we perform on deep clone table will create its own logs and data files.
 -- MAGIC
 -- MAGIC **invoices_tbl_deep_clone**
--- MAGIC ![image_1782116502032.png](./image_1782116502032.png "image_1782116502032.png")
+-- MAGIC ![image_1782116502032.png](NB7_images/image_1782116502032.png "image_1782116502032.png")
 -- MAGIC
 -- MAGIC **invoices_tbl_clone_reference**
 -- MAGIC ![image_1782112847730.png](NB7_images/image_1782112847730.png "image_1782112847730.png")
