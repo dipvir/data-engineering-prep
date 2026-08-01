@@ -13,4 +13,13 @@ part-00000-cb6f5953-2c67-40ea-9046-4753497c5f0f-c000.zstd.parquet
 
 -- COMMAND ----------
 
+-- MAGIC %fs ls abfss://sample-files-container@delta0lake0lab0storageac.dfs.core.windows.net/invoices/
 
+-- COMMAND ----------
+
+-- MAGIC %fs ls abfss://destination-cont@adf1lab1sa.dfs.core.windows.net/parquet_files/
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(spark.read.parquet("abfss://destination-cont@adf1lab1sa.dfs.core.windows.net/parquet_files/orders_incr_parquet_file") )
