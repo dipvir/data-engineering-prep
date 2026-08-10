@@ -280,3 +280,132 @@
 # MAGIC > * **Durability:** Every commit is written as an `atomic(All-or-Nothing)` transaction directly to the cloud storage log directory (`_delta_log/000000.json`). Because cloud object stores (like ADLS Gen2) are highly replicated, once that JSON log file commits, the transaction state is permanently durable and guaranteed to survive any cluster drop.
 # MAGIC
 # MAGIC ---
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Here is a personalized, high-impact self-introduction and project breakdown based on your resume, designed to present you as a mid-to-senior Data Engineer.
+# MAGIC
+# MAGIC ---
+# MAGIC
+# MAGIC ## 1. Your 90-Second Self-Introduction (Script to practice out loud)
+# MAGIC
+# MAGIC > *"Hi, my name is **Dipesh Virmani**. I am a **Data Engineer** with around **4 years of IT experience at Tata Consultancy Services**, specializing in building end-to-end, scalable data pipelines on the **Azure cloud platform**.
+# MAGIC > 
+# MAGIC > 
+# MAGIC > Over the course of my career, my work has focused on three core areas:
+# MAGIC > 1. **Data Harmonization & Warehousing:** Designing raw-to-refined Bronze/Silver/Gold fact and dimension layers in **Azure Databricks** using **PySpark** and **SparkSQL**, orchestrated seamlessly through **Azure Data Factory**.
+# MAGIC > 2. **Legacy Modernization:** Leading migrations of complex legacy codebases—specifically rewriting **SAS scripts into high-performance PySpark workflows**, where I even integrated **OpenAI/GenAI tools** to automate and accelerate code conversion.
+# MAGIC > 3. **Data Access & API Layer:** Building custom Python and SQL-based APIs to serve processed data from Azure SQL databases to analytical web applications, optimizing query execution with indexing strategies.
+# MAGIC > 
+# MAGIC > 
+# MAGIC > I am a **Databricks Certified Data Engineer Associate** , highly proficient with **Unity Catalog, Workflows, Delta Lake, ADLS Gen2, and CI/CD via Azure DevOps**. I’m excited about this opportunity with EY because my hands-on background in enterprise data pipeline development aligns directly with the solutions you build for your clients."*
+# MAGIC > 
+# MAGIC > 
+# MAGIC
+# MAGIC ---
+# MAGIC
+# MAGIC ## 2. Project-by-Project Walkthrough (When asked to explain your experience)
+# MAGIC
+# MAGIC ### **Project 1: CPG Data Harmonization & API Serving (Data Engineer | Jan 2025 – Present)**
+# MAGIC
+# MAGIC * 
+# MAGIC **Context:** Ingesting raw consumer packaged goods (CPG) data to build structured, business-ready data models.
+# MAGIC
+# MAGIC
+# MAGIC * **Architecture / What you did:**
+# MAGIC * 
+# MAGIC **Ingestion & Processing:** Used **Azure Data Factory (ADF)** to orchestrate pipeline triggers and run **Azure Databricks** notebooks.
+# MAGIC
+# MAGIC
+# MAGIC * 
+# MAGIC **Transformation:** Transformed raw transactional data into **harmonized Fact and Dimension tables** (Star Schema model) using **PySpark and SparkSQL**.
+# MAGIC
+# MAGIC
+# MAGIC * 
+# MAGIC **Data Serving & APIs:** Developed **Python/SQL-based APIs** to expose harmonized datasets from an **Azure SQL Database** directly to web applications, applying **clustered/non-clustered indexing** to minimize API latency.
+# MAGIC
+# MAGIC
+# MAGIC * 
+# MAGIC **DevOps:** Managed codebase versioning, pull requests, and automated deployment pipelines using **Azure DevOps & Git**.
+# MAGIC
+# MAGIC
+# MAGIC
+# MAGIC
+# MAGIC * **Interview Power Phrase:** *"I bridged the gap between big data processing in Databricks and low-latency API consumption for end-user web applications."*
+# MAGIC
+# MAGIC ---
+# MAGIC
+# MAGIC ### **Project 2: SAS to PySpark Migration with OpenAI (Databricks Developer | July 2023 – Dec 2024)**
+# MAGIC
+# MAGIC * 
+# MAGIC **Context:** Modernizing monolithic, legacy SAS analytical frameworks into cloud-native Spark architectures.
+# MAGIC
+# MAGIC
+# MAGIC * **Architecture / What you did:**
+# MAGIC * 
+# MAGIC **Migration Logic:** Analyzed legacy SAS procedures (`PROC SQL`, `PROC DATASTEP`) and refactored them into distributed **PySpark DataFrames** on **Azure Databricks**.
+# MAGIC
+# MAGIC
+# MAGIC * 
+# MAGIC **GenAI / OpenAI Integration:** Utilized **OpenAI APIs** to assist in automated pattern extraction and translating complex SAS syntax to PySpark code, reducing manual migration effort.
+# MAGIC
+# MAGIC
+# MAGIC * 
+# MAGIC **Quality Assurance:** Performed unit testing, reconciliation checks between legacy SAS output datasets and new PySpark Delta tables to ensure zero data loss or business logic drift.
+# MAGIC
+# MAGIC
+# MAGIC
+# MAGIC
+# MAGIC * **Interview Power Phrase:** *"I didn't just re-write legacy code; I leveraged GenAI tools to accelerate code translation while maintaining data integrity across millions of rows."*
+# MAGIC
+# MAGIC ---
+# MAGIC
+# MAGIC ### **Project 3: AWS HPC & Visualization Enablement (AWS Cloud Engineer | Dec 2022 – June 2023)**
+# MAGIC
+# MAGIC * 
+# MAGIC **Context:** Managing cloud infrastructure and high-performance compute environments.
+# MAGIC
+# MAGIC
+# MAGIC * **Architecture / What you did:**
+# MAGIC * Configured AWS EC2 instances and set up **Nice DCV** and **AWS Session Manager** for secure remote desktop/CLI access.
+# MAGIC
+# MAGIC
+# MAGIC * Saved infrastructure costs by transitioning heavy local workload requirements into cloud-hosted Linux compute nodes.
+# MAGIC
+# MAGIC
+# MAGIC
+# MAGIC
+# MAGIC * **How to frame it for a Data Role:** *"This gave me strong foundational knowledge of cloud networking, security, IAM roles, and Linux CLI, which I now use daily when configuring Databricks clusters and cloud storage access."*
+# MAGIC
+# MAGIC ---
+# MAGIC
+# MAGIC ## 3. Quick-Fire Cheat Sheet for Resume Highlights
+# MAGIC
+# MAGIC | Resume Skill | 10-Second Interview Talking Point |
+# MAGIC | --- | --- |
+# MAGIC | <br>**Databricks Associate Cert** 
+# MAGIC
+# MAGIC  | *"Demonstrates my mastery of Delta Lake ACID properties, Lakehouse architecture, and Unity Catalog governance."* |
+# MAGIC | <br>**Azure Data Factory** 
+# MAGIC
+# MAGIC  | *"Used for parameterization, scheduling, triggering Databricks jobs, and handling pipeline failure notifications."* |
+# MAGIC | <br>**Delta Lake / Storage** 
+# MAGIC
+# MAGIC  | *"Leveraged `MERGE INTO` for upserts/SCD Type 2, along with `OPTIMIZE` and `Z-ORDERING` for file compaction."* |
+# MAGIC | <br>**Azure DevOps / Git** 
+# MAGIC
+# MAGIC  | *"Proficient in branch policies, PR reviews, and managing CI/CD release triggers for Databricks notebooks."* |
+# MAGIC
+# MAGIC ---
+# MAGIC
+# MAGIC ## 4. Final 10-Minute Pre-Interview Mindset
+# MAGIC
+# MAGIC 1. 
+# MAGIC **Take 3 deep breaths:** You have **4 years of solid hands-on experience** and have already earned a **Databricks Certification**. You know this stack inside and out.
+# MAGIC
+# MAGIC
+# MAGIC 2. **Talk about 'Why', not just 'What':** Whenever you explain a PySpark function or ADF pipeline, explain *why* you chose that approach (e.g., *"We chose Delta Lake because we needed transactional integrity during nightly upserts"*).
+# MAGIC 3. **Keep water nearby:** Take a 2-second sip before answering complex scenario questions to give yourself time to formulate a structured answer.
+# MAGIC
+# MAGIC **You are thoroughly prepared. Go smash this interview!**

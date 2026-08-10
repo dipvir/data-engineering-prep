@@ -97,54 +97,54 @@
 # MAGIC
 # MAGIC ---
 # MAGIC
-# MAGIC #### **1. Performance Optimization Techniques in Relational Databases (OLTP)**
+# MAGIC #### 1. Performance Optimization Techniques in Relational Databases (OLTP)
 # MAGIC
 # MAGIC In an OLTP database (like MySQL or PostgreSQL), performance bottlenecks are usually caused by random disk I/O during row inserts or single-record lookups.
 # MAGIC
-# MAGIC #### **A. B-Tree Indexing**
+# MAGIC ##### A. B-Tree Indexing
 # MAGIC
 # MAGIC * **How it works:** Instead of scanning every physical row on the disk (a full table scan), the engine creates a balanced tree (B-Tree) structure pointing to the exact physical memory location of a row based on a specific column (like `customer_id`).
 # MAGIC * **Impact:** Drops the search time complexity from linear time (O(N)) to logarithmic time (O(log N)), speeding up transactional lookups.
 # MAGIC
-# MAGIC #### **B. Normalization (Up to 3NF)**
+# MAGIC ##### B. Normalization (Up to 3NF)
 # MAGIC
 # MAGIC * **How it works:** Splitting data into specialized, interconnected tables (e.g., separating `orders` from `customers`) to eliminate data redundancy.
 # MAGIC * **Impact:** Keeps rows thin and ensures that writes, updates, and deletes only lock a single record in one specific table, preventing data anomalies and maximizing transaction write speeds.
 # MAGIC
-# MAGIC #### **C. Connection Pooling**
+# MAGIC ##### C. Connection Pooling
 # MAGIC
 # MAGIC * **How it works:** Instead of the application opening and tearing down a brand-new, expensive TCP database connection for every single user click, a cache of persistent, idle database connections is maintained.
 # MAGIC * **Impact:** Eliminates connection handshake latency, allowing the database to handle thousands of rapid concurrent queries.
 # MAGIC
 # MAGIC ---
 # MAGIC
-# MAGIC #### **2. Performance Optimization Techniques in Data Warehouses (OLAP)**
+# MAGIC #### 2. Performance Optimization Techniques in Data Warehouses (OLAP)
 # MAGIC
 # MAGIC In an OLAP warehouse (like Snowflake, AWS Redshift, or Google BigQuery), performance bottlenecks are caused by scanning billions of historical rows for aggregations (like calculating annual revenue sums).
 # MAGIC
-# MAGIC #### **A. Columnar Storage Architecture**
+# MAGIC ##### A. Columnar Storage Architecture
 # MAGIC
 # MAGIC * **How it works:** Traditional databases store data row-by-row on a disk (`Row1_Col1, Row1_Col2, Row1_Col3`). Data Warehouses store data column-by-column, keeping all values for a single attribute packed together sequentially on the physical disk block (`All_Col1_Values, All_Col2_Values`).
 # MAGIC * **Impact:** If a query only evaluates 3 columns out of a 200-column table, the engine completely skips reading the blocks for the other 197 columns, eliminating unnecessary disk I/O and saving huge amounts of memory bandwidth.
 # MAGIC
-# MAGIC #### **B. Data Partitioning and Pruning**
+# MAGIC ##### B. Data Partitioning and Pruning
 # MAGIC
 # MAGIC * **How it works:** Physically segregating data into separate directories or disk storage segments based on a high-cardinality boundary column (such as `transaction_date`).
 # MAGIC * **Impact:** When a user executes a query for a specific date range, the warehouse optimizer uses **Partition Pruning** to instantly bypass and ignore all other data blocks on the disk, slicing out terabytes of unneeded processing overhead.
 # MAGIC
-# MAGIC #### **C. Denormalization (Star / Snowflake Modeling)**
+# MAGIC ##### C. Denormalization (Star / Snowflake Modeling)
 # MAGIC
 # MAGIC * **How it works:** Intentionally combining related tables back together into massive, flat structures composed of central **Fact Tables** (containing metrics) and surrounding **Dimension Tables** (containing descriptive attributes).
 # MAGIC * **Impact:** Drastically reduces the need for heavy, multi-node SQL `JOIN` operations, allowing the warehouse to run fast, straight-line aggregate scans across the cluster.
 # MAGIC
-# MAGIC #### **D. Materialized Views and Pre-Aggregation**
+# MAGIC ##### D. Materialized Views and Pre-Aggregation
 # MAGIC
 # MAGIC * **How it works:** The warehouse pre-computes complex, expensive multi-table query results (like calculating group-by summaries) on a scheduled background cadence and physically saves the output dataset back to disk.
 # MAGIC * **Impact:** When an executive opens a dashboard, the system reads the pre-calculated answer instantly instead of wasting cluster computing power running heavy calculations on raw data over and over again.
 # MAGIC
 # MAGIC ---
 # MAGIC
-# MAGIC #### **🔄 Architectural Comparison for the Interview Room**
+# MAGIC #### 🔄 Architectural Comparison for the Interview Room
 # MAGIC
 # MAGIC | Optimization Metric | Relational Database (OLTP) | Data Warehouse (OLAP) |
 # MAGIC | --- | --- | --- |
