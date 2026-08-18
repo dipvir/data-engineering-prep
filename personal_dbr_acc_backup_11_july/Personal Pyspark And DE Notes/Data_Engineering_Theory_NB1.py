@@ -490,3 +490,49 @@
 # MAGIC | **Consistency** | Follow the Rules | Enforced by Database Constraints (`NOT NULL`, `UNIQUE`). | Enforced by Delta Schema Enforcement (like your Float vs Double safety check). |
 # MAGIC | **Isolation** | No Interference | Enforced by Row/Table Locks. | Enforced by **Optimistic Concurrency Control (OCC)** (handles simultaneous writers). |
 # MAGIC | **Durability** | Safe on Disk | Enforced by writing to physical disk storage logs (WAL). | Enforced because files are permanently committed directly to cloud storage (ADLS/S3). |
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### Q11. What is Idempotency in Data Engineering?
+# MAGIC
+# MAGIC In simple terms, **idempotency means that running a process multiple times gives you the exact same result as running it just once.**
+# MAGIC
+# MAGIC **The Elevator Analogy:**
+# MAGIC Think of pushing the call button for an elevator. If you push the button once, the elevator comes. If you panic and push the button 10 times, you don't get 10 elevators. The end result is exactly the same. The elevator button is *idempotent*.
+# MAGIC
+# MAGIC **Why it matters in Data Engineering:**
+# MAGIC Pipelines fail all the time (network glitches, cluster crashes, etc.). If a job fails halfway through and you have to restart it:
+# MAGIC
+# MAGIC * **A Non-Idempotent Pipeline** will blindly process the data again, giving you duplicate rows or double-counting revenue.
+# MAGIC * **An Idempotent Pipeline** knows what it already did. You can safely rerun it 100 times, and it will just overwrite or skip the data it already processed, leaving you with a perfectly clean table.
+# MAGIC
+# MAGIC **Databricks Example:**
+# MAGIC
+# MAGIC * **Not Idempotent:** `INSERT INTO` (Running it twice inserts the data twice).
+# MAGIC * **Idempotent:** `MERGE INTO` (Running it twice just updates the same records. No duplicates are created). This is why `MERGE` is so heavily used in the Medallion Architecture!
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### Q12. What is a Surrogate Key?
+# MAGIC
+# MAGIC In simple terms, a **surrogate key is a system-generated, unique ID for a row in a table that has absolutely zero business meaning.** It is usually just an auto-incrementing integer (1, 2, 3...) or a random string (UUID).
+# MAGIC
+# MAGIC **The Difference Between Natural and Surrogate Keys:**
+# MAGIC
+# MAGIC * **Natural Key:** A unique ID that actually means something in the real world (e.g., an Employee ID, a Social Security Number, an email address, or a Product SKU).
+# MAGIC * **Surrogate Key:** A completely meaningless ID created solely for the database's internal tracking (e.g., a backend row ID).
+# MAGIC
+# MAGIC **Why do we need them? (The Data Engineering perspective):**
+# MAGIC
+# MAGIC Because real-world data is messy and changes!
+# MAGIC Imagine you use an email address as a primary key. What happens if the customer gets married and changes their email? It breaks all your historical relationships in the database. A surrogate key never changes, no matter what happens in the real world.
+# MAGIC
+# MAGIC **How it ties into SCD Type 2 (Important for your interview):**
+# MAGIC
+# MAGIC We just talked about Slowly Changing Dimensions (SCD Type 2), where you keep a historical record of changes.
+# MAGIC If John moves from Nagpur to Mumbai, your Dimension table will now have **two** rows for John.
+# MAGIC
+# MAGIC * Both rows will have the exact same Natural Key (Employee ID: `EMP-100`).
+# MAGIC * Therefore, you *must* create a **Surrogate Key** (Row ID: `1` for Nagpur, Row ID: `2` for Mumbai) so your downstream Fact tables can link a specific purchase to the exact address he lived at during that time!
