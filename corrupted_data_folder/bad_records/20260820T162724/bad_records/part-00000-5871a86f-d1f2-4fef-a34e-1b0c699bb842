@@ -1,0 +1,3 @@
+{"path":"dbfs:/Workspace/Users/dipvirmani28@gmail.com/data-engineering-prep/corrupted_data_folder/people.csv","record":"3,Bob,Chicago","reason":"org.apache.spark.sql.catalyst.util.LazyBadRecordCauseWrapper"}
+{"path":"dbfs:/Workspace/Users/dipvirmani28@gmail.com/data-engineering-prep/corrupted_data_folder/people.csv","record":"5,David,28,Phoenix,ExtraField","reason":"org.apache.spark.sql.catalyst.util.LazyBadRecordCauseWrapper"}
+{"path":"dbfs:/Workspace/Users/dipvirmani28@gmail.com/data-engineering-prep/corrupted_data_folder/people.csv","record":"7,Frank,Invalid,SanDiego","reason":"java.lang.NumberFormatException: For input string: \"Invalid\""}
