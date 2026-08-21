@@ -34,7 +34,7 @@ import pyspark.sql.functions as F
 # MAGIC │  Resolved Logical Plan  │  ← All references validated
 # MAGIC └─────────────────────────┘
 # MAGIC        |
-# MAGIC    [Optimizer]  — Applies Catalyst rule-based & cost-based optimizations
+# MAGIC    [Catalyst Optimizer]  — Applies Catalyst rule-based & cost-based optimizations
 # MAGIC        |
 # MAGIC        v
 # MAGIC ┌─────────────────────────┐
