@@ -11,3 +11,4 @@
       else if its 'F' put 'Female' else if its Null put '' or else keep as it is.
 - **6.**  Have you done any streaming work.
 - **7.**  What is databricks lakeflow. 
+- **8.**  Types of Joins in Spark.
