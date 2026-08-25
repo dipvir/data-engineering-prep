@@ -174,5 +174,6 @@ display(struct_df)
 # MAGIC %sql
 # MAGIC SELECT *,
 # MAGIC            from_json(json_str, 'STRUCT<dept:STRING,level:INT>') AS json_struct,
-# MAGIC            from_json(json_str, 'STRUCT<dept:STRING,level:INT>').dept AS dept
+# MAGIC            json_struct.dept AS dept,
+# MAGIC            json_struct.level AS level
 # MAGIC     FROM df

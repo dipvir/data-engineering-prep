@@ -5,6 +5,7 @@
 # ///
 # DBTITLE 1,Imports
 import  pyspark.sql.functions as F
+from pyspark.sql.window import Window
 
 # COMMAND ----------
 
@@ -59,7 +60,7 @@ display(df2)
 
 # COMMAND ----------
 
-# DBTITLE 1,SQL Group by
+# DBTITLE 1,SQL Group by & Having
 # MAGIC %sql
 # MAGIC select
 # MAGIC   paymentMethod,
@@ -74,7 +75,7 @@ display(df2)
 
 # COMMAND ----------
 
-# DBTITLE 1,PySpark - Group by - Having
+# DBTITLE 1,PySpark - Group by & Having
 df2 = df.groupBy("paymentMethod").count().filter(F.col("count") > 1100)
 display(df2)
 
@@ -98,13 +99,11 @@ display(df2)
 # COMMAND ----------
 
 # DBTITLE 1,PySpark - Window Function - Row Number
-from pyspark.sql.window import Window
-
 window_spec = Window.partitionBy("product").orderBy(F.col("quantity").desc())
 
 df2 = df.withColumn("row_number_over_product", F.row_number().over(window_spec))
 
-df3=df2.select("product","customerID","quantity","row_number_over_product")
+df3 = df2.select("product","customerID","quantity","row_number_over_product")
 
 display(df3)
 

@@ -29,8 +29,10 @@ display(df2)
 # COMMAND ----------
 
 # DBTITLE 1,Numbers - PySpark
-# df2=df.withColumn("myCol",F.pow("quantity",2)/6)
-df2=df.withColumn("myCol",F.round(F.pow("quantity",2)/6,2))
+df2 = (
+    df.withColumn("myCol_1",F.pow("quantity",2)/6)
+        .withColumn("myCol_2",F.round(F.pow("quantity",2)/6,2))
+      )
 display(df2)
 
 # COMMAND ----------
@@ -42,12 +44,12 @@ display(df2)
 # COMMAND ----------
 
 # DBTITLE 1,String Manipulations and Splitting Functions - PySpark
-df2=df.select("product").\
-withColumn("lower_product",F.expr("lower(product)")).\
-withColumn("upper_product",F.expr("upper(product)")).\
-withColumn("trim_product",F.expr("trim(product)")).\
-withColumn("substr_product",F.expr("substr(product,0,4)")).\
-withColumn("split_product",F.expr("split(product,' ')"))
+df2 = df.select("product").\
+            withColumn("lower_product",F.expr("lower(product)")).\
+            withColumn("upper_product",F.expr("upper(product)")).\
+            withColumn("trim_product",F.expr("trim(product)")).\
+            withColumn("substr_product",F.expr("substr(product,0,4)")).\
+            withColumn("split_product",F.expr("split(product,' ')"))
 display(df2)
 
 # COMMAND ----------

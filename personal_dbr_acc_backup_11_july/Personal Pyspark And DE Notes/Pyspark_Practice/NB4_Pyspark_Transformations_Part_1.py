@@ -147,7 +147,6 @@ display(df2)
 # DBTITLE 1,Union - PySpark
 df2=df
 display(df)
-display(df2)
 
 df3=df.union(df2)
 display(df3)
@@ -170,6 +169,12 @@ display(df3)
 # MAGIC * **Alternative for Name-Based Matching:** To merge DataFrames by column names (and handle mismatched schemas), use `unionByName()`, which also supports missing columns via the `allowMissingColumns=True` parameter.
 # MAGIC * **Eliminating Duplicates:** To achieve standard SQL `UNION` behavior (deduplication), chain `.distinct()` or `.dropDuplicates()` after the union:
 # MAGIC     * df_unique = df1.union(df2).distinct()
+
+# COMMAND ----------
+
+# DBTITLE 1,UnionByName - PySpark
+df3=df.unionByName(df2)
+display(df3)
 
 # COMMAND ----------
 
@@ -230,6 +235,13 @@ display(df2)
 # DBTITLE 1,Limit - SQL
 # MAGIC %sql
 # MAGIC select * from samples.bakehouse.sales_franchises limit 10
+
+# COMMAND ----------
+
+# DBTITLE 1,Limit & Offset - SQL
+# MAGIC %sql
+# MAGIC -- Skip the first 4 rows (OFFSET 4) and return the next 5 rows (LIMIT 5)
+# MAGIC select * from samples.bakehouse.sales_franchises order by franchiseID limit 5 offset 4
 
 # COMMAND ----------
 
