@@ -938,7 +938,9 @@ df_smj.explain(True)
 # MAGIC **== Physical Plan == (This is the final plan which gets executed on the cluster)**
 # MAGIC
 # MAGIC ---
+# MAGIC
 # MAGIC **SortMergeJoin Plan (broadcast disabled):**
+# MAGIC
 # MAGIC ```
 # MAGIC == Physical Plan ==
 # MAGIC AdaptiveSparkPlan isFinalPlan=false
@@ -954,6 +956,7 @@ df_smj.explain(True)
 # MAGIC             +- Filter isnotnull(cust_id#54)
 # MAGIC                +- FileScan parquet [cust_id#54,name#55,age#56,gender#57,birthday#58,zip#59,city#60] Batched: true, DataFilters: [isnotnull(cust_id#54)], Format: Parquet, Location: InMemoryFileIndex(1 paths)[abfss://dalta-lake-lab-sacc-container@daltalakelabstorageacc.dfs.core...., PartitionFilters: [], PushedFilters: [IsNotNull(cust_id)], ReadSchema: struct<cust_id:string,name:string,age:string,gender:string,birthday:string,zip:string,city:string>
 # MAGIC ```
+# MAGIC
 # MAGIC ---
 # MAGIC
 # MAGIC **Explanation:**
