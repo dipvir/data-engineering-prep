@@ -229,7 +229,8 @@ print(b[:5])
 # To get the characters from position 2, and all the way to the end of the string
 print(b[2:])
 # Use negative indexes to start the slice from the end of the string
-print(b[-5:-2]) #Gets the characters from position -5 to position -3
+print(b[-5:-2]) # Gets the characters from position -5 to position -3
+print(b[-len(b):]) # Gets whole string
 
 # -------------String Methods-------------
 # Python has a set of built-in methods that you can use on strings.
@@ -244,7 +245,7 @@ print(b.center(20)) #The center() method will center align the string, using a s
 print(b.center(20, "-")) #The center() method also takes the character paramter to fill the void with:
 print(b.count("l")) #The count() method returns the number of times a specified value appears in the string:
 # count takes two more optional parameters start and end, which are used to specify the range of the search.
-print(b.count("o", 3, 11)) #here count searches between index 3 and 10
+print(b.count("o", 3, 11)) # here count searches between index 3 to 10
 print(b.endswith("d!")) #The endswith() method returns True if the string ends with the specified character value, otherwise False:
 print(a.replace("H", "J")) #The replace() method replaces a string with another string:
 # The split() method splits a string into a list.
