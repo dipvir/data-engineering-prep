@@ -711,3 +711,4 @@ print(1)
 # <img src="NB2_images/image_1782898256724.png" width="400" height="200"/>
 
 # Standard markdown ![alt](url) does not support size, so use HTML for resizing.
+

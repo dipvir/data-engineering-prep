@@ -211,3 +211,4 @@ print("No. of row",df.count())
 df = spark.read.option("timestampAsOf", "2026-07-16T11:20:22.000+00:00").table("delta_catalog.delta_db.invoices_ttv")
 display(df.filter(f.col("customer_id").isin(1,2) ))
 print("No. of row",df.count())
+

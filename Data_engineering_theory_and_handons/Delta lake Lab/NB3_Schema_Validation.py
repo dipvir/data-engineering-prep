@@ -607,3 +607,4 @@
 # MAGIC   count(*) AS total_rows
 # MAGIC FROM
 # MAGIC   delta_catalog.delta_db.invoices_sv;
+

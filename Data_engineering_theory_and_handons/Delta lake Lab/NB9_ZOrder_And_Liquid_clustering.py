@@ -503,3 +503,4 @@ df_union.write.mode("overwrite").clusterBy("invoice_date", "customer_id").saveAs
 # MAGIC     GROUP BY
 # MAGIC         category
 # MAGIC         """)
+

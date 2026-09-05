@@ -255,3 +255,4 @@ VACUUM delta_catalog.delta_db.invoices_mor;
 
 -- DBTITLE 1,DESCRIBE HISTORY invoices_mor
 DESCRIBE HISTORY delta_catalog.delta_db.invoices_mor;
+

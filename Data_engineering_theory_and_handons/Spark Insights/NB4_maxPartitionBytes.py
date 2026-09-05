@@ -173,3 +173,4 @@ transactions_df.rdd.getNumPartitions()
 # MAGIC
 # MAGIC So increasing `spark.sql.files.maxPartitionBytes` reduced the number of input partitions because Spark packed more scan data into each one.
 # MAGIC
+

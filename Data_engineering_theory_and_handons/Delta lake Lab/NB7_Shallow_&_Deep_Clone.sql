@@ -541,3 +541,4 @@ DESCRIBE HISTORY delta_catalog.delta_db.invoices_tbl_clone_reference;
 -- MAGIC * **Handling of Properties**: **CTAS** creates a new table based on the output of a query, causing it to lose metadata, partitioning properties, and constraints from the source table. **Deep Clone** is more robust as it automatically clones the metadata, data, and existing table properties.
 -- MAGIC * **Incremental Processing**: A key advantage of **Deep Clone** is its support for **incremental syncing** . In scenarios like disaster recovery, if you need to update a replica, Deep Clone only copies the incremental changes (updates or deletes) rather than re-copying the entire dataset, making it far more performant for maintaining replicas.
 -- MAGIC * **Incremental Processing Limitation**: INSERT / UPDATE / MERGE / DELETE operations are synced incrementally. However, SCHEMA changes or changes in PARTITIONING, COLUMN changes will trigger a full DEEP CLONE
+

@@ -845,3 +845,4 @@ df_46k_99k.write.mode("append").saveAsTable("delta_catalog.delta_db.vacuum_ex_tt
 # MAGIC
 # MAGIC -- So, as expected it gave error for version 1 with the file which is now deleted permanently
 # MAGIC -- And ran properly for other versions as its required set of file was present.
+

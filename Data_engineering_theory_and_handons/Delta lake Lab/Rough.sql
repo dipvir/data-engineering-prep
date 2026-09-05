@@ -23,3 +23,4 @@ part-00000-cb6f5953-2c67-40ea-9046-4753497c5f0f-c000.zstd.parquet
 
 -- MAGIC %python
 -- MAGIC display(spark.read.parquet("abfss://destination-cont@adf1lab1sa.dfs.core.windows.net/parquet_files/orders_incr_parquet_file") )
+

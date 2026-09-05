@@ -85,3 +85,4 @@ display(df_Gold_reserves_tonnes)
 # MAGIC   delta_catalog.delta_db.invoices_ext;
 # MAGIC
 # MAGIC DESCRIBE EXTENDED delta_catalog.delta_db.invoices_ext;
+

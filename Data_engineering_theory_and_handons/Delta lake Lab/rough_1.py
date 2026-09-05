@@ -57,3 +57,4 @@ display(spark.sql("""
         delta_catalog.delta_db.optimize_ex1 VERSION AS OF 0
         """))
            
+

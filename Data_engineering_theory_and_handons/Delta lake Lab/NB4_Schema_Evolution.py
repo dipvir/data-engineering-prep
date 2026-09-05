@@ -873,3 +873,4 @@ df_incoming = (
 # DBTITLE 1,Checking Delta Table History
 # MAGIC %sql
 # MAGIC DESCRIBE HISTORY delta_catalog.delta_db.invoices_se;
+
