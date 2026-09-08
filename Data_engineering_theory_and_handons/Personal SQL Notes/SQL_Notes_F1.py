@@ -1875,6 +1875,40 @@
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC ### Q25. Is `INSERT INTO` standard SQL, and is `MERGE INTO` specific to Databricks/Spark?
+# MAGIC
+# MAGIC * **`INSERT INTO` is Standard SQL.** You are completely right. It is universal and works in virtually every relational database in the world (MySQL, PostgreSQL, Oracle, SQL Server).
+# MAGIC * **`MERGE INTO` is ALSO Standard SQL!** It is not exclusive to Databricks. It is an ANSI-standard SQL command that has been used for years in databases like SQL Server, Oracle, Snowflake, and BigQuery.
+# MAGIC
+# MAGIC **So why does it *feel* like a Databricks feature?**
+# MAGIC For a long time, traditional Big Data systems (like Hadoop or standard Spark) *could not do updates*. You could only append new files.
+# MAGIC
+# MAGIC When Databricks created **Delta Lake**, they finally figured out how to bring the standard `MERGE INTO` command to massive data lake files. Because it revolutionized how data lakes operated (by allowing ACID upserts and deletes), it became the absolute flagship feature of Delta Lake. Databricks talks about it so much that it feels proprietary to them, but they are just using standard SQL on top of their special storage layer.
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### Q26. What are the primary use cases for `INSERT INTO` vs. `MERGE INTO` in Data Engineering?
+# MAGIC
+# MAGIC **A:** The choice between these two entirely depends on whether you are simply stacking new data on top of old data, or if you need to mutate/modify existing data.
+# MAGIC
+# MAGIC **Use Cases for `INSERT INTO` (Append-Only Scenarios)**
+# MAGIC
+# MAGIC * **Raw Data Ingestion (Bronze Layer):** Dumping massive volumes of incoming files directly into your raw tables just to get them into the lake.
+# MAGIC * **Immutable Events:** Storing facts that never change once they happen. Examples include website clickstreams, IoT temperature readings, or application error logs.
+# MAGIC * **Maximum Write Performance:** Because `INSERT INTO` just drops new files into storage without scanning the table to see if a record already exists, it is incredibly fast and cheap.
+# MAGIC
+# MAGIC **Use Cases for `MERGE INTO` (Upserts & Deletes)**
+# MAGIC
+# MAGIC * **Deduplication (Bronze to Silver):** Cleaning up your messy raw data by applying the logic: *"If this transaction ID already exists, update the record. If it doesn't, insert it."*
+# MAGIC * **Slowly Changing Dimensions (SCD):** Updating dimensional data over time, such as changing a customer's address or adjusting a product's category.
+# MAGIC * **Applying Change Data Feed (CDF):** Taking the stream of inserts, updates, and deletes from your Silver layer and applying those exact mutations/modifications to your final Gold layer tables.
+# MAGIC * **Data Privacy Compliance (GDPR/CCPA):** Finding specific users who requested their account be deleted and removing their rows from the table without having to rewrite the entire dataset from scratch.
+
+# COMMAND ----------
+
+# DBTITLE 1,rough
 with tbl as (
 SELECT
 	province_id,
@@ -1992,4 +2026,3 @@ from
 group by
 	province_name 
              
-

@@ -737,7 +737,7 @@ df_incoming = (
 # DBTITLE 1,Appending A Single Record Using Insert Into
 # MAGIC %sql
 # MAGIC -- Appending A Single Record To Verify Schema Evolution Nested Structure
-# MAGIC -- Enable automatic schema evolution Setting on the table ('spark.databricks.delta.schema.autoMerge.enabled' = 'true'). 
+# MAGIC -- Enable automatic schema evolution Setting on the table ('spark.databricks.delta.schema.autoMerge.enabled' = 'true').
 # MAGIC INSERT INTO delta_catalog.delta_db.invoices_se
 # MAGIC VALUES(88, 'I0003', 100, '2026-04-19', 33, 'Credit Card', "24", "Mall of Istanbul", 
 # MAGIC named_struct( 'mall_pin_code',012345,
@@ -873,4 +873,3 @@ df_incoming = (
 # DBTITLE 1,Checking Delta Table History
 # MAGIC %sql
 # MAGIC DESCRIBE HISTORY delta_catalog.delta_db.invoices_se;
-

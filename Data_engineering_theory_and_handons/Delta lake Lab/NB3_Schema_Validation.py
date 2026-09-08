@@ -252,7 +252,7 @@
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC **Note :- **
+# MAGIC **Note :-**
 # MAGIC - In Apache Spark and Delta Lake, a standard INSERT INTO statement completely ignores column names in your SELECT clause. Instead, it maps data strictly by ordinal position (left-to-right).
 # MAGIC - **Conclusion** : Only use INSERT INTO when we are sure about the schema and column order of the table we want to write to, Else we would end up with corrupted data as shown above.
 
@@ -607,4 +607,3 @@
 # MAGIC   count(*) AS total_rows
 # MAGIC FROM
 # MAGIC   delta_catalog.delta_db.invoices_sv;
-
