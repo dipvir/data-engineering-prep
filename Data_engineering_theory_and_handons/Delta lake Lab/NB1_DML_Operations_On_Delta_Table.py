@@ -82,7 +82,7 @@ display(files)
 
 # DBTITLE 1,DDL Command :- Registering External Location And Creating Catalog, Schema
 # MAGIC %sql
-# MAGIC -- 1. registering an External Location and Catalog in Unity Catalog.
+# MAGIC -- 1. registering an External Location in Unity Catalog.
 # MAGIC -- (Note: Use the exact name of the Storage Credential you created earlier)
 # MAGIC CREATE EXTERNAL LOCATION IF NOT EXISTS delta_lake_lab_adlsg2_ext_location_delta URL
 # MAGIC 'abfss://dbr-managed-tables-container@delta0lake0lab0storageac.dfs.core.windows.net/'
